@@ -1,6 +1,6 @@
-import { MEDIA_TYPE } from "../common/type";
 import { MaxLength, IsNotEmpty, IsString, isString, IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from "@nestjs/swagger";
+
 
 export class CreateMediaDto {
     @ApiProperty()
@@ -30,7 +30,7 @@ export class CreateMediaDto {
     @IsString()
     @IsNotEmpty()
     @MaxLength(5)
-    mediaType: MEDIA_TYPE;
+    mediaType: string;
 
     @ApiProperty()
     @IsString()

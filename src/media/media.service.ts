@@ -1,10 +1,8 @@
 import { HttpException, HttpStatus, Injectable, NotAcceptableException, NotFoundException, UploadedFile } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { Media } from './entities/media.entity';
-import { MEDIA_TYPE } from './common/type';
 import { MediaRepository } from './media.repository';
 
 @Injectable()
@@ -76,7 +74,7 @@ export class MediaService {
     item.mediaName = file.filename;
     item.format = file.originalname.substr(file.originalname.lastIndexOf('.') + 1);
     item.mediaSize = file.size;
-    item.mediaType = file.mimetype.includes("image") ? MEDIA_TYPE.IMAGE : MEDIA_TYPE.VIDEO;
+    item.mediaType = file.mimetype.includes("image") ? "Image" : "Video";
     item.originalName = file.originalname;
     item.permaURL = file.destination;
     item.mediaURL = file.path;

@@ -11,8 +11,9 @@ import { MediaModule } from './media/media.module';
       username: 'root',
       password: 'root',
       database: 'socialapp',
-      autoLoadEntities: true,
-      synchronize: false,
+      "entities": ["dist/**/**/*.entity{.ts,.js}"],
+      "synchronize": false,
+      "autoLoadEntities": true
     }),
     MediaModule,
   ],

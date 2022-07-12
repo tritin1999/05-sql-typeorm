@@ -4,8 +4,9 @@ import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { MediaDto } from './dto/get-media.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { editFileName, mediaFileFilter } from './common/file-helpers';
 import { diskStorage } from 'multer';
+import { editFileName, mediaFileFilter } from '../shared/file-helpers';
+
 
 @Controller('api/medias')
 export class MediaController {

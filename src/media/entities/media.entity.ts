@@ -1,5 +1,5 @@
+
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { MEDIA_TYPE } from "../common/type";
 
 @Entity('medias')
 export class Media {
@@ -19,7 +19,7 @@ export class Media {
     format: string;
 
     @Column({ default: "", type: 'varchar', length: 5, nullable: false })
-    mediaType: MEDIA_TYPE;
+    mediaType: string;
 
     @Column({ default: "", type: 'varchar', length: 240, nullable: true })
     mediaURL: string;
