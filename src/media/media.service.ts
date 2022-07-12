@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable, NotAcceptableException, NotFoundException, UploadedFile } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { isNotEmpty } from 'class-validator';
+import { getDataSource } from 'src/datasource';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { Media } from './entities/media.entity';
@@ -7,15 +8,11 @@ import { MediaRepository } from './media.repository';
 
 @Injectable()
 export class MediaService {
-  constructor(
-    @InjectRepository(MediaRepository)
-    private mediasRepository: MediaRepository,
-  ) { }
 
-  async create(@UploadedFile() file): Promise<Media> {
+  async create(@UploadedFile() file) {
     try {
-      const media = this.mapFromFileToCreateMediaDto(file);
-      return await this.mediasRepository.save(media);
+      const media = await this.mapFromFileToCreateMediaDto(file);
+      return await (await MediaRepository).save(media);
     } catch (err) {
       console.log(err);
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
@@ -23,13 +20,21 @@ export class MediaService {
   }
 
   async findAll(): Promise<Media[]> {
-    return await this.mediasRepository.find();
+    return await (await MediaRepository).find();
   }
 
   async findOne(id: number): Promise<Media> {
-    const item = await this.mediasRepository.findOneBy({ id: id });
+    const item = await (await MediaRepository).findOneBy({ id })
     if (!item) {
       throw new NotFoundException(`Mediafile #${id} not found`);
+    }
+    return item;
+  }
+
+  async findByName(name: string): Promise<Media> {
+    const item = await (await MediaRepository).findByName(name);
+    if (!item || item !== isNotEmpty) {
+      throw new NotFoundException(`Mediafile #${name} not found`);
     }
     return item;
   }
@@ -45,8 +50,9 @@ export class MediaService {
       throw new NotFoundException(`Mediafile #${id} not found`);
     }
     else {
-      const media = this.mapFromFileToUpdateMediaDto(id, file);
-      return await this.mediasRepository.save(media);
+      console.log(file);
+      const media = await this.mapFromFileToUpdateMediaDto(id, file);
+      return await (await MediaRepository).save(media);
     }
   }
 
@@ -54,23 +60,23 @@ export class MediaService {
     if (await this.findOne(id) === null) {
       throw new NotFoundException(`Mediafile #${id} not found`);
     }
-    await this.mediasRepository.delete(id);
+    await (await MediaRepository).delete(id);
   }
 
-  private mapFromFileToCreateMediaDto(@UploadedFile() file) {
+  private async mapFromFileToCreateMediaDto(@UploadedFile() file) {
     const item: CreateMediaDto = new CreateMediaDto();
     this.mapData(item, file);
     return item;
   }
 
-  private mapFromFileToUpdateMediaDto(id: number, @UploadedFile() file) {
+  private async mapFromFileToUpdateMediaDto(id: number, @UploadedFile() file) {
     const item: UpdateMediaDto = new UpdateMediaDto();
     item.id = parseInt(id.toString());
     this.mapData(item, file);
     return item;
   }
 
-  private mapData(item, file) {
+  private async mapData(item, file) {
     item.mediaName = file.filename;
     item.format = file.originalname.substr(file.originalname.lastIndexOf('.') + 1);
     item.mediaSize = file.size;

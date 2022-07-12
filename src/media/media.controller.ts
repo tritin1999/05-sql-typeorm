@@ -6,11 +6,14 @@ import { MediaDto } from './dto/get-media.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName, mediaFileFilter } from '../shared/file-helpers';
+import { isNotEmpty, isNotEmptyObject } from 'class-validator';
+import { HttpException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 
 
 @Controller('api/medias')
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) { }
+  constructor(private mediaService: MediaService) { }
 
   @Post('/upload-single')
   @UseInterceptors(
@@ -23,7 +26,16 @@ export class MediaController {
     }),
   )
   async uploadSingleFile(@UploadedFile() file) {
-    return await this.mediaService.create(file);
+    try {
+      if (file !== isNotEmpty || file !== isNotEmptyObject)
+        return await this.mediaService.create(file);
+    } catch (err) {
+      console.log(err);
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Exception occurs, please check with system manager',
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Post('/upload-multiple')
@@ -37,9 +49,18 @@ export class MediaController {
     }),
   )
   async uploadMultipleFiles(@UploadedFiles() files) {
-    await files.forEach(file => {
-      this.mediaService.create(file);
-    });
+    try {
+      if (files !== isNotEmpty || files !== isNotEmptyObject)
+        await files.forEach(file => {
+          this.mediaService.create(file);
+        });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Exception occurs, please check with system manager',
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get()
@@ -50,6 +71,11 @@ export class MediaController {
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.mediaService.findOne(+id);
+  }
+
+  @Get('getByName/:name')
+  async findByName(@Param('name') name: string) {
+    return await this.mediaService.findByName(name);
   }
 
   @UseInterceptors(
@@ -63,11 +89,28 @@ export class MediaController {
   )
   @Patch(':id')
   async update(@Param('id') id: number, @UploadedFile() file) {
-    return await this.mediaService.update(id, file);
+    try {
+      if (file !== isNotEmpty || file !== isNotEmptyObject)
+        return await this.mediaService.update(id, file);
+    } catch (err) {
+      console.log(err);
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Exception occurs, please check with system manager',
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    return await this.mediaService.remove(id);
+    try {
+      return await this.mediaService.remove(id);
+    } catch (err) {
+      console.log(err);
+      throw new HttpException({
+        status: HttpStatus.BAD_REQUEST,
+        error: 'Exception occurs, please check with system manager',
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 }
