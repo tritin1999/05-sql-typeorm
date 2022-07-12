@@ -4,13 +4,14 @@ import { Repository } from 'typeorm';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { Media } from './entities/media.entity';
-import { MEDIA_TYPE } from './entities/type';
+import { MEDIA_TYPE } from './common/type';
+import { MediaRepository } from './media.repository';
 
 @Injectable()
 export class MediaService {
   constructor(
-    @InjectRepository(Media)
-    private readonly mediasRepository: Repository<Media>,
+    @InjectRepository(MediaRepository)
+    private mediasRepository: MediaRepository,
   ) { }
 
   async create(@UploadedFile() file): Promise<Media> {

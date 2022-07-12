@@ -1,4 +1,4 @@
-import { MEDIA_TYPE } from "../entities/type";
+import { MEDIA_TYPE } from "../common/type";
 import { MaxLength, IsNotEmpty, IsString, isString, IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from "@nestjs/swagger";
 

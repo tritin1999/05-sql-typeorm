@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
 import { MediaModule } from './media/media.module';
-
 
 @Module({
   imports: [
@@ -14,10 +12,9 @@ import { MediaModule } from './media/media.module';
       password: 'root',
       database: 'socialapp',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
-    UsersModule,
     MediaModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

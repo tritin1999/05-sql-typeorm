@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { MEDIA_TYPE } from "./type";
+import { MEDIA_TYPE } from "../common/type";
 
 @Entity('medias')
 export class Media {

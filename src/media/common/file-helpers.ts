@@ -2,7 +2,7 @@ import { extname } from "path";
 
 export const mediaFileFilter = (req: any, file: any, callback: any) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|HEIC|gif|mp4|avi)$/)) {
-        return callback(new Error('File is not valid, must be jpg/ jpeg/ png/ gif/ HEIC.'), false);
+        return callback(new Error('File is not valid, must be jpg/ jpeg/ png/ gif/ HEIC/ mp4/ avi.'), false);
     }
     callback(null, true);
 }
