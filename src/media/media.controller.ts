@@ -1,33 +1,21 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, NotAcceptableException, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { MediaService } from './media.service';
-import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
-import { MediaDto } from './dto/get-media.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { editFileName, mediaFileFilter } from '../shared/file-helpers';
 import { isNotEmpty, isNotEmptyObject } from 'class-validator';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
-
+import { BufferedFile } from 'src/minio-client/file.model';
 
 @Controller('api/medias')
 export class MediaController {
   constructor(private mediaService: MediaService) { }
 
   @Post('/upload-single')
-  @UseInterceptors(
-    FileInterceptor('mediafile', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: editFileName,
-      }),
-      fileFilter: mediaFileFilter,
-    }),
-  )
-  async uploadSingleFile(@UploadedFile() file) {
+  @UseInterceptors(FileInterceptor('mediafile'))
+  async uploadSingleFile(@UploadedFile() file: BufferedFile) {
     try {
-      if (file !== isNotEmpty || file !== isNotEmptyObject)
+      if (isNotEmpty(file) && isNotEmptyObject(file))
         return await this.mediaService.create(file);
     } catch (err) {
       console.log(err);
@@ -39,21 +27,13 @@ export class MediaController {
   }
 
   @Post('/upload-multiple')
-  @UseInterceptors(
-    FilesInterceptor('mediafile', 10, {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: editFileName,
-      }),
-      fileFilter: mediaFileFilter,
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('mediafile'))
   async uploadMultipleFiles(@UploadedFiles() files) {
     try {
-      if (files !== isNotEmpty || files !== isNotEmptyObject)
-        await files.forEach(file => {
+      await files.forEach(file => {
+        if (isNotEmpty(file))
           this.mediaService.create(file);
-        });
+      });
     } catch (err) {
       console.log(err);
       throw new HttpException({
@@ -78,19 +58,11 @@ export class MediaController {
     return await this.mediaService.findByName(name);
   }
 
-  @UseInterceptors(
-    FileInterceptor('mediafile', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: editFileName,
-      }),
-      fileFilter: mediaFileFilter,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('mediafile'))
   @Patch(':id')
   async update(@Param('id') id: number, @UploadedFile() file) {
     try {
-      if (file !== isNotEmpty || file !== isNotEmptyObject)
+      if (isNotEmpty(file) && isNotEmptyObject(file))
         return await this.mediaService.update(id, file);
     } catch (err) {
       console.log(err);
@@ -103,14 +75,6 @@ export class MediaController {
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    try {
-      return await this.mediaService.remove(id);
-    } catch (err) {
-      console.log(err);
-      throw new HttpException({
-        status: HttpStatus.BAD_REQUEST,
-        error: 'Exception occurs, please check with system manager',
-      }, HttpStatus.BAD_REQUEST);
-    }
+    return await this.mediaService.remove(id);
   }
 }
